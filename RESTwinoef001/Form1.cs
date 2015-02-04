@@ -15,9 +15,21 @@ namespace RESTwinoef001
 {
     public partial class Form1 : Form
     {
+        private static String[] maanden = { "januari", "februari", "maart", "april", "mei", "juni", "juli", "augustus", "september", "oktober", "november", "december" };
         public Form1()
         {
             InitializeComponent();
+            Binding b = bLOEIBEGINTextBox.DataBindings[0];
+            b.Format += b_Format;
+            Binding b2 = bLOEIEINDETextBox.DataBindings[0];
+            b2.Format += b_Format;
+        }
+
+        void b_Format(object sender, ConvertEventArgs e)
+        {
+            int nummerMaand = Convert.ToInt32(e.Value);
+            e.Value = maanden[nummerMaand - 1];
+
         }
         private async Task<Plant[]> GetPlantenAsync()
         {
@@ -36,11 +48,11 @@ namespace RESTwinoef001
                 return planten;
             }
         }
-        private async Task<MijnPlant> GetPlantAsync(String art_code)
+        private async Task<PLANTEN> GetPlantAsync(String art_code)
         {
             using (HttpClient client = new HttpClient())
             {
-                MijnPlant planten = null;
+                PLANTEN planten = null;
                 client.BaseAddress = new Uri("http://localhost:59318/");
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept
@@ -48,7 +60,7 @@ namespace RESTwinoef001
                 HttpResponseMessage response = await client.GetAsync("api/planten/"+art_code);
                 if (response.IsSuccessStatusCode)
                 {
-                    return planten = await response.Content.ReadAsAsync<MijnPlant>();
+                    return planten = await response.Content.ReadAsAsync<PLANTEN>();
                 }
                 else
                 {
@@ -65,10 +77,10 @@ namespace RESTwinoef001
 
         private async void button1_Click(object sender, EventArgs e)
         {
-            MijnPlant p = await GetPlantAsync((string)plantComboBox.SelectedValue);
+            PLANTEN p = await GetPlantAsync((string)plantComboBox.SelectedValue);
             if (p != null)
             {
-                mijnPlantBindingSource.DataSource = p;
+                pLANTENBindingSource.DataSource = p;
             }
             else
             {
